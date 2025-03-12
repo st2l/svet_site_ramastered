@@ -2,6 +2,7 @@ from django.db import models
 from django.db.models import ImageField
 from django.core.exceptions import ValidationError
 
+UPLOAD_DIR = 'upload_dir'
 
 class MainSection(models.Model):
     name = models.CharField('Название', max_length=255)
@@ -83,9 +84,27 @@ class Lamp(models.Model):
     price = models.DecimalField('Цена', max_digits=10, decimal_places=2, null=True, blank=True)
     
     # Images
-    main_image = models.ImageField('Основное изображение', upload_to='lamps/', blank=True)
-    scheme_image = models.ImageField('Схема', upload_to='lamps/schemes/', blank=True)
-    lamp_image = models.ImageField('Фото ламп', upload_to='lamps/lamp_photos/', blank=True)
+    main_image = models.ImageField('Основное изображение', upload_to=UPLOAD_DIR, blank=True)
+    detail_image = models.ImageField('Детальная картинка', upload_to=UPLOAD_DIR, blank=True)
+    scheme_image = models.ImageField('Схема', upload_to=UPLOAD_DIR, blank=True)
+    lamp_image = models.ImageField('Фото ламп', upload_to=UPLOAD_DIR, blank=True)
+    additional_image_1 = models.ImageField('Картинка вторая', upload_to=UPLOAD_DIR, blank=True)
+    additional_image_2 = models.ImageField('Доп фото 5', upload_to=UPLOAD_DIR, blank=True)
+    additional_image_3 = models.ImageField('Доп фото 6', upload_to=UPLOAD_DIR, blank=True)
+    additional_image_4 = models.ImageField('Доп фото 7', upload_to=UPLOAD_DIR, blank=True)
+    additional_image_5 = models.ImageField('Доп фото 8', upload_to=UPLOAD_DIR, blank=True)
+    additional_image_6 = models.ImageField('Доп фото 9', upload_to=UPLOAD_DIR, blank=True)
+    additional_image_7 = models.ImageField('Доп фото 10', upload_to=UPLOAD_DIR, blank=True)
+    additional_image_8 = models.ImageField('Доп фото 11', upload_to=UPLOAD_DIR, blank=True)
+    additional_image_9 = models.ImageField('Доп фото 12', upload_to=UPLOAD_DIR, blank=True)
+    additional_image_10 = models.ImageField('Доп фото 13', upload_to=UPLOAD_DIR, blank=True)
+    additional_image_11 = models.ImageField('Доп фото 14', upload_to=UPLOAD_DIR, blank=True)
+    additional_image_12 = models.ImageField('Доп фото 15', upload_to=UPLOAD_DIR, blank=True)
+    additional_image_13 = models.ImageField('Доп фото 16', upload_to=UPLOAD_DIR, blank=True)
+    additional_image_14 = models.ImageField('Доп фото 17', upload_to=UPLOAD_DIR, blank=True)
+    additional_image_15 = models.ImageField('Доп фото 18', upload_to=UPLOAD_DIR, blank=True)
+    additional_image_16 = models.ImageField('Доп фото 19', upload_to=UPLOAD_DIR, blank=True)
+    additional_image_17 = models.ImageField('Доп фото 20', upload_to=UPLOAD_DIR, blank=True)
     
     created_at = models.DateTimeField(auto_now_add=True)
     

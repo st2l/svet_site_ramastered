@@ -2,3 +2,5 @@ db.sqlite3
 __pycache__/	
 *.pyc
 DEAD_templates/*
+media/*
+media/
