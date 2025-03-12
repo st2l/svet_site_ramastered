@@ -1,0 +1,36 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block content %}
+<div class="module">
+    <h2>Импорт товаров из Excel</h2>
+    
+    {% if messages %}
+    <ul class="messagelist">
+        {% for message in messages %}
+        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <input type="submit" value="Загрузить">
+    </form>
+    
+    <div class="help">
+        <p>Формат Excel файла должен содержать следующие колонки:</p>
+        <ul>
+            <li>main_section - Основной раздел</li>
+            <li>subsection - Подраздел</li>
+            <li>final_section - Конечный раздел</li>
+            <li>model - Модель</li>
+            <li>article - Артикул</li>
+            <li>brand - Бренд</li>
+            <li>price - Цена</li>
+            <!-- Добавьте остальные поля -->
+        </ul>
+    </div>
+</div>
+{% endblock %}
