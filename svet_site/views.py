@@ -370,34 +370,58 @@ def add_to_wishlist(request):
     })
 
 def lamps(request):
-    # Get selected main category
+    # Get selected categories
     selected_main = request.GET.get('main_cat', '')
+    selected_sub = request.GET.get('sub_cat', '')
     
     # Get all lamps
     lamp_list = Lamp.objects.all()
     
-    # Initialize section hierarchy with only main sections
+    # Initialize breadcrumb and section hierarchy
+    breadcrumb = []
     section_hierarchy = []
-    main_sections = MainSection.objects.all()
     
-    for main in main_sections:
-        main_count = Lamp.objects.filter(section__subsection__main_section=main).count()
-        section_hierarchy.append({
-            'section': main,
-            'count': main_count,
-            'is_selected': str(main.id) == selected_main
-        })
-    
-    # Apply main category filter if selected
+    # If main category is selected, show its subcategories
     if selected_main:
-        lamp_list = lamp_list.filter(section__subsection__main_section__id=selected_main)
         try:
             main_section = MainSection.objects.get(id=selected_main)
-            breadcrumb = [('main', main_section)]
+            breadcrumb.append(('main', main_section))
+            
+            # Get all subcategories of selected main category
+            for sub in main_section.subsection_set.all():
+                sub_count = Lamp.objects.filter(section__subsection=sub).count()
+                if sub_count > 0:  # Only show subcategories with products
+                    section_hierarchy.append({
+                        'section': sub,
+                        'count': sub_count,
+                        'type': 'sub',
+                        'is_selected': str(sub.id) == selected_sub
+                    })
+            
+            # Filter products by main category
+            lamp_list = lamp_list.filter(section__subsection__main_section=main_section)
+            
+            # If subcategory is selected, filter further
+            if selected_sub:
+                try:
+                    sub_section = Subsection.objects.get(id=selected_sub, main_section=main_section)
+                    breadcrumb.append(('sub', sub_section))
+                    lamp_list = lamp_list.filter(section__subsection=sub_section)
+                except Subsection.DoesNotExist:
+                    pass
+                
         except MainSection.DoesNotExist:
-            breadcrumb = []
-    else:
-        breadcrumb = []
+            selected_main = ''
+    
+    # If no main category selected, show main categories
+    if not selected_main:
+        for main in MainSection.objects.all():
+            main_count = Lamp.objects.filter(section__subsection__main_section=main).count()
+            section_hierarchy.append({
+                'section': main,
+                'count': main_count,
+                'type': 'main'
+            })
 
     # Get sorting parameter
     sort = request.GET.get('sort', '0')

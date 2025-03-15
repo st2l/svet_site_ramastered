@@ -339,11 +339,24 @@
 					<div id="aside" class="col-md-3">
 						<!-- aside Widget -->
 						<div class="aside">
-							<h3 class="aside-title">Категории</h3>
+							<h3 class="aside-title">
+								{% if selected_main %}
+									<a href="{% url 'svet_site:lamps' %}" style="color: #000;">
+										<i class="fa fa-arrow-left"></i> 
+									</a>
+									Подкатегории
+								{% else %}
+									Категории
+								{% endif %}
+							</h3>
 							<div class="checkbox-filter">
 								{% for section in section_hierarchy %}
 									<div class="input-checkbox">
-										<a href="?main_cat={{ section.section.id }}{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if current_show %}&show={{ current_show }}{% endif %}">
+										{% if section.type == 'main' %}
+											<a href="?main_cat={{ section.section.id }}{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if current_show %}&show={{ current_show }}{% endif %}">
+										{% else %}
+											<a href="?main_cat={{ selected_main }}&sub_cat={{ section.section.id }}{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if current_show %}&show={{ current_show }}{% endif %}">
+										{% endif %}
 											<label {% if section.is_selected %}class="active"{% endif %}>
 												<span></span>
 												{{ section.section.name }}
@@ -536,7 +549,7 @@
 							<span class="store-qty">Показано {{ lamps.start_index }}-{{ lamps.end_index }} из {{ paginator.count }} товаров</span>
 							<ul class="store-pagination">
 								{% if lamps.has_previous %}
-									<li><a href="?page={{ lamps.previous_page_number }}&show={{ current_show }}&sort={{ current_sort }}{% if selected_main %}&main_cat={{ selected_main }}{% endif %}"><i class="fa fa-angle-left"></i></a></li>
+									<li><a href="?page={{ lamps.previous_page_number }}&show={{ current_show }}&sort={{ current_sort }}{% if selected_main %}&main_cat={{ selected_main }}{% endif %}{% if selected_sub %}&sub_cat={{ selected_sub }}{% endif %}"><i class="fa fa-angle-left"></i></a></li>
 								{% endif %}
 								
 								{% for p in page_range %}
@@ -547,14 +560,14 @@
 											{% if lamps.number == p %}
 												{{ p }}
 											{% else %}
-												<a href="?page={{ p }}&show={{ current_show }}&sort={{ current_sort }}{% if selected_main %}&main_cat={{ selected_main }}{% endif %}">{{ p }}</a>
+												<a href="?page={{ p }}&show={{ current_show }}&sort={{ current_sort }}{% if selected_main %}&main_cat={{ selected_main }}{% endif %}{% if selected_sub %}&sub_cat={{ selected_sub }}{% endif %}">{{ p }}</a>
 											{% endif %}
 										</li>
 									{% endif %}
 								{% endfor %}
 								
 								{% if lamps.has_next %}
-									<li><a href="?page={{ lamps.next_page_number }}&show={{ current_show }}&sort={{ current_sort }}{% if selected_main %}&main_cat={{ selected_main }}{% endif %}"><i class="fa fa-angle-right"></i></a></li>
+									<li><a href="?page={{ lamps.next_page_number }}&show={{ current_show }}&sort={{ current_sort }}{% if selected_main %}&main_cat={{ selected_main }}{% endif %}{% if selected_sub %}&sub_cat={{ selected_sub }}{% endif %}"><i class="fa fa-angle-right"></i></a></li>
 								{% endif %}
 							</ul>
 						</div>
