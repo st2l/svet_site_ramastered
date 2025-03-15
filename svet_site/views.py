@@ -16,10 +16,11 @@ def index(request):
     # Get first 2 main sections
     all_sections = list(MainSection.objects.all())
     first_sections = all_sections[:2]
+    last_sections = all_sections[-2:] if len(all_sections) >= 2 else all_sections
     
     # Get products for each section
     section_products = {}
-    for section in first_sections:
+    for section in first_sections + last_sections:
         # Get products from this section and all its subsections
         products = Lamp.objects.filter(
             models.Q(section__subsection__main_section=section) |
@@ -27,9 +28,21 @@ def index(request):
         )[:5]  # Get first 5 products
         section_products[section.id] = products
     
+    # Get 18 random products (6 products for each column)
+    random_products = list(Lamp.objects.all().order_by('?')[:18])
+    
+    # Split products into 3 groups of 6
+    random_groups = [random_products[i:i+6] for i in range(0, len(random_products), 6)]
+    
+    # Add empty lists if we don't have enough products
+    while len(random_groups) < 3:
+        random_groups.append([])
+    
     params = {
-        'random_sections': first_sections,  # Keeping the same parameter name for template compatibility
+        'random_sections': first_sections,
+        'last_sections': last_sections,
         'section_products': section_products,
+        'random_groups': random_groups,
     }
     
     return render(request, 'svet_site/index.html', context=params)
