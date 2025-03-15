@@ -37,6 +37,113 @@
 		<![endif]-->
 
     </head>
+
+	<style>
+
+		.header-ctn>div {
+			display: inline-block;
+		  }
+		  
+		  .header-ctn>div>a {
+			display: block;
+			position: relative;
+			width: 90px;
+			text-align: center;
+			color: #FFF;
+		  }
+		  
+		  /* Общие стили для выпадающих меню */
+		  .cart-dropdown,
+		  .wishlist-dropdown {
+			position: absolute;
+			width: 300px;
+			background: #FFF;
+			padding: 15px;
+			-webkit-box-shadow: 0px 0px 0px 2px #E4E7ED;
+			box-shadow: 0px 0px 0px 2px #E4E7ED;
+			z-index: 99;
+			right: 0;
+			opacity: 0;
+			visibility: hidden;
+		  }
+		  
+		  /* Показ выпадающих меню при ховере */  
+		  .header-ctn>div:hover>.cart-dropdown,
+		  .header-ctn>div:hover>.wishlist-dropdown {
+			opacity: 1;
+			visibility: visible;
+		  }
+		  
+		  /* Общие стили для списков товаров */
+		  .cart-list,
+		  .wishlist-list {
+			max-height: 180px;
+			overflow-y: scroll;
+			margin-bottom: 15px;
+		  }
+		  
+		  /* Общие стили для виджетов товаров */
+		  .cart-list .product-widget,
+		  .wishlist-list .product-widget {
+			padding: 0px;
+			-webkit-box-shadow: none;
+			box-shadow: none;
+			margin-bottom: 15px;
+		  }
+		  
+		  /* Общие стили для итоговых блоков */
+		  .cart-summary,
+		  .wishlist-summary {
+			border-top: 1px solid #E4E7ED;
+			padding-top: 15px;
+			padding-bottom: 15px;
+		  }
+		  
+		  /* Общие стили для кнопок */
+		  .cart-btns,
+		  .wishlist-btns {
+			margin: 0px -17px -17px;
+		  }
+		  
+		  .cart-btns>a,
+		  .wishlist-btns>a {
+			display: inline-block;
+			width: calc(50% - 0px);
+			padding: 12px;
+			background-color: #D10024;
+			color: #FFF;
+			text-align: center;
+			font-weight: 700;
+			-webkit-transition: 0.2s all;
+			transition: 0.2s all;
+		  }
+		  
+		  .cart-btns>a:first-child,
+		  .wishlist-btns>a:first-child {
+			margin-right: -4px;
+			background-color: #1e1f29;
+		  }
+		  
+		  .cart-btns>a:hover,
+		  .wishlist-btns>a:hover {
+			opacity: 0.9;
+		  }
+		  
+		  /* Стили для счетчика количества */
+		  .header-ctn>div>a>.qty {
+			position: absolute;
+			right: 15px;
+			top: -10px;
+			width: 20px;
+			height: 20px;
+			line-height: 20px;
+			text-align: center;
+			border-radius: 50%;
+			font-size: 10px;
+			color: #FFF;
+			background-color: #D10024;
+		  }
+	</style>
 	<body>
 		<!-- HEADER -->
 		<header>
@@ -91,13 +198,36 @@
 						<div class="col-md-3 clearfix">
 							<div class="header-ctn">
 								<!-- Wishlist -->
-								<div>
-									<a href="#">
-										<i class="fa fa-heart-o"></i>
-										<span>Your Wishlist</span>
-										<div class="qty">2</div>
-									</a>
-								</div>
+									<div class="dropdown">
+										<a class="dropdown-toggle" data-toggle="dropdown">
+											<i class="fa fa-heart-o"></i>
+											<span>Избранное</span>
+											<div class="qty">{{ wishlist_count|default:0 }}</div>
+										</a>
+										<div class="wishlist-dropdown">
+											<div class="wishlist-list">
+												{% for item in wishlist_items %}
+												<div class="product-widget">
+													<div class="product-img">
+														<img src="{{ item.image }}" alt="{{ item.name }}">
+													</div>
+													<div class="product-body">
+														<h3 class="product-name"><a href="#">{{ item.name }}</a></h3>
+														<h4 class="product-price">{{ item.price }}₽</h4>
+													</div>
+													<button class="delete"><i class="fa fa-close"></i></button>
+												</div>
+												{% endfor %}
+											</div>
+											<div class="wishlist-summary">
+												<small>{{ wishlist_count|default:0 }} товар(ов) в избранном</small>
+											</div>
+											<div class="wishlist-btns">
+												<a href="#">Просмотр избранного</a>
+												<a href="#">В корзину <i class="fa fa-arrow-circle-right"></i></a>
+											</div>
+										</div>
+									</div>
 								<!-- /Wishlist -->
 
 								<!-- Cart -->
@@ -722,6 +852,54 @@
 
 					$('.cart-summary small').text(`${cartItems.length} товар(ов) выбрано`);
 					$('.cart-summary h5').text(`ИТОГО: ${total}₽`);
+				}
+
+				// Handle add to wishlist button clicks
+				$('.add-to-wishlist').on('click', function(e) {
+					e.preventDefault();
+					const productId = $(this).closest('.product').find('.add-to-cart-form').data('product-id');
+					
+					$.ajax({
+						url: "{% url 'svet_site:add_to_wishlist' %}",
+						method: 'POST',
+						data: {
+							'product_id': productId,
+							'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val()
+						},
+						success: function(response) {
+							// Update wishlist count
+							$('.header-ctn .wishlist-qty').text(response.wishlist_count);
+							
+							// Update wishlist dropdown
+							updateWishlistDropdown(response.wishlist_items);
+							
+							// Show success message
+							alert('Товар добавлен в избранное!');
+						},
+						error: function() {
+							alert('Произошла ошибка при добавлении в избранное');
+						}
+					});
+				});
+
+				function updateWishlistDropdown(wishlistItems) {
+					const wishlistList = $('.wishlist-dropdown .wishlist-list');
+					wishlistList.empty();
+					
+					wishlistItems.forEach(item => {
+						wishlistList.append(`
+							<div class="product-widget">
+								<div class="product-img">
+									<img src="${item.image}" alt="${item.name}">
+								</div>
+								<div class="product-body">
+									<h3 class="product-name"><a href="#">${item.name}</a></h3>
+									<h4 class="product-price">${item.price}₽</h4>
+								</div>
+								<button class="delete"><i class="fa fa-close"></i></button>
+							</div>
+						`);
+					});
 				}
 			});
 		</script>

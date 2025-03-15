@@ -68,6 +68,24 @@ def index(request):
         'cart_total': cart_total
     })
     
+    # Get wishlist data from session
+    wishlist = request.session.get('wishlist', {})
+    wishlist_count = len(wishlist)
+    wishlist_items = [
+        {
+            'id': pid,
+            'name': item['name'],
+            'price': item['price'],
+            'image': item['image']
+        }
+        for pid, item in wishlist.items()
+    ]
+    
+    params.update({
+        'wishlist_items': wishlist_items,
+        'wishlist_count': wishlist_count,
+    })
+    
     return render(request, 'svet_site/index.html', context=params)
 
 def download_image(url):
@@ -297,4 +315,44 @@ def add_to_cart(request):
         'status': 'success',
         'cart_count': sum(item['quantity'] for item in cart.values()),
         'cart_items': cart_items
+    })
+
+@require_POST
+def add_to_wishlist(request):
+    product_id = request.POST.get('product_id')
+    if not product_id:
+        return JsonResponse({'error': 'Product ID is required'}, status=400)
+    
+    try:
+        product = Lamp.objects.get(id=product_id)
+    except Lamp.DoesNotExist:
+        return JsonResponse({'error': 'Product not found'}, status=404)
+    
+    # Initialize wishlist in session if it doesn't exist
+    if 'wishlist' not in request.session:
+        request.session['wishlist'] = {}
+    
+    wishlist = request.session['wishlist']
+    
+    # Add product to wishlist if not already there
+    if product_id not in wishlist:
+        wishlist[product_id] = {
+            'name': product.model,
+            'price': float(product.price),
+            'image': product.main_image.url if product.main_image else '',
+        }
+        request.session.modified = True
+    
+    return JsonResponse({
+        'status': 'success',
+        'wishlist_count': len(wishlist),
+        'wishlist_items': [
+            {
+                'id': pid,
+                'name': item['name'],
+                'price': item['price'],
+                'image': item['image']
+            }
+            for pid, item in wishlist.items()
+        ]
     })

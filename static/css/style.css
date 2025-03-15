@@ -615,6 +615,82 @@ textarea.input {
   padding-bottom: 15px;
 }
 
+/* Wishlist Dropdown */
+.wishlist-dropdown {
+  position: absolute;
+  width: 300px;
+  background: #FFF;
+  padding: 15px;
+  -webkit-box-shadow: 0px 0px 0px 2px #E4E7ED;
+  box-shadow: 0px 0px 0px 2px #E4E7ED;
+  z-index: 99;
+  right: 0;
+  opacity: 0;
+  visibility: hidden;
+}
+
+.dropdown.open>.wishlist-dropdown,
+*:hover > .wishlist-dropdown {
+  opacity: 1;
+  visibility: visible;
+}
+
+.wishlist-dropdown .wishlist-list {
+  max-height: 180px;
+  overflow-y: scroll;
+  margin-bottom: 15px;
+}
+
+.wishlist-dropdown .wishlist-list .product-widget {
+  padding: 0px;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+}
+
+.wishlist-dropdown .wishlist-list .product-widget:last-child {
+  margin-bottom: 0px;
+}
+
+.wishlist-dropdown .wishlist-list .product-widget .product-img {
+  left: 0px;
+  top: 0px;
+}
+
+.wishlist-dropdown .wishlist-list .product-widget .product-body .product-price {
+  color: #2B2D42;
+}
+
+.wishlist-dropdown .wishlist-btns {
+  margin: 0px -17px -17px;
+}
+
+.wishlist-dropdown .wishlist-btns>a {
+  display: inline-block;
+  width: calc(50% - 0px);
+  padding: 12px;
+  background-color: #D10024;
+  color: #FFF;
+  text-align: center;
+  font-weight: 700;
+  -webkit-transition: 0.2s all;
+  transition: 0.2s all;
+}
+
+.wishlist-dropdown .wishlist-btns>a:first-child {
+  margin-right: -4px;
+  background-color: #1e1f29;
+}
+
+.wishlist-dropdown .wishlist-btns>a:hover {
+  opacity: 0.9;
+}
+
+.wishlist-dropdown .wishlist-summary {
+  border-top: 1px solid #E4E7ED;
+  padding-top: 15px;
+  padding-bottom: 15px;
+}
+
 /*=========================================================
 	03 -> Navigation
 ===========================================================*/
@@ -2187,4 +2263,112 @@ textarea.input {
     float: none;
     margin-top: 10px;
   }
+}
+
+/*----------------------------*\
+	Cart & Wishlist
+\*----------------------------*/
+
+.header-ctn>div {
+  display: inline-block;
+}
+
+.header-ctn>div>a {
+  display: block;
+  position: relative;
+  width: 90px;
+  text-align: center;
+  color: #FFF;
+}
+
+/* Общие стили для выпадающих меню */
+.cart-dropdown,
+.wishlist-dropdown {
+  position: absolute;
+  width: 300px;
+  background: #FFF;
+  padding: 15px;
+  -webkit-box-shadow: 0px 0px 0px 2px #E4E7ED;
+  box-shadow: 0px 0px 0px 2px #E4E7ED;
+  z-index: 99;
+  right: 0;
+  opacity: 0;
+  visibility: hidden;
+}
+
+/* Показ выпадающих меню при ховере */  
+.header-ctn>div:hover>.cart-dropdown,
+.header-ctn>div:hover>.wishlist-dropdown {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Общие стили для списков товаров */
+.cart-list,
+.wishlist-list {
+  max-height: 180px;
+  overflow-y: scroll;
+  margin-bottom: 15px;
+}
+
+/* Общие стили для виджетов товаров */
+.cart-list .product-widget,
+.wishlist-list .product-widget {
+  padding: 0px;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+  margin-bottom: 15px;
+}
+
+/* Общие стили для итоговых блоков */
+.cart-summary,
+.wishlist-summary {
+  border-top: 1px solid #E4E7ED;
+  padding-top: 15px;
+  padding-bottom: 15px;
+}
+
+/* Общие стили для кнопок */
+.cart-btns,
+.wishlist-btns {
+  margin: 0px -17px -17px;
+}
+
+.cart-btns>a,
+.wishlist-btns>a {
+  display: inline-block;
+  width: calc(50% - 0px);
+  padding: 12px;
+  background-color: #D10024;
+  color: #FFF;
+  text-align: center;
+  font-weight: 700;
+  -webkit-transition: 0.2s all;
+  transition: 0.2s all;
+}
+
+.cart-btns>a:first-child,
+.wishlist-btns>a:first-child {
+  margin-right: -4px;
+  background-color: #1e1f29;
+}
+
+.cart-btns>a:hover,
+.wishlist-btns>a:hover {
+  opacity: 0.9;
+}
+
+/* Стили для счетчика количества */
+.header-ctn>div>a>.qty {
+  position: absolute;
+  right: 15px;
+  top: -10px;
+  width: 20px;
+  height: 20px;
+  line-height: 20px;
+  text-align: center;
+  border-radius: 50%;
+  font-size: 10px;
+  color: #FFF;
+  background-color: #D10024;
 }
