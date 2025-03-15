@@ -13,6 +13,7 @@ import requests
 from urllib.parse import unquote
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 def index(request):
     # Get first 2 main sections
@@ -99,7 +100,7 @@ def download_image(url):
         # Decode URL to handle Russian characters
         decoded_url = unquote(url)
         response = requests.get(decoded_url)
-        if response.status_code == 200:
+        if (response.status_code == 200):
             return ContentFile(response.content, name=decoded_url.split('/')[-1])
     except Exception as e:
         print(f"Error downloading image {url}: {e}")
@@ -269,6 +270,17 @@ def upload_excel(request):
     
     return render(request, 'admin/upload_excel.html', {'form': form})
 
+def get_first_available_image(product):
+    """Get the first available image from the product's image fields"""
+    image_fields = ['main_image', 'detail_image', 'scheme_image', 'lamp_image', 
+                   'additional_image_1', 'additional_image_2', 'additional_image_3']
+    
+    for field in image_fields:
+        image = getattr(product, field, None)
+        if image:
+            return image
+    return None
+
 @require_POST
 def add_to_cart(request):
     product_id = request.POST.get('product_id')
@@ -294,7 +306,7 @@ def add_to_cart(request):
             'quantity': 1,
             'name': product.model,
             'price': float(product.price),
-            'image': product.main_image.url if product.main_image else '',
+            'image': get_first_available_image(product).url if get_first_available_image(product) else '',
         }
     
     request.session.modified = True
@@ -339,7 +351,7 @@ def add_to_wishlist(request):
         wishlist[product_id] = {
             'name': product.model,
             'price': float(product.price),
-            'image': product.main_image.url if product.main_image else '',
+            'image': get_first_available_image(product).url if get_first_available_image(product) else '',
         }
         request.session.modified = True
     
@@ -356,3 +368,139 @@ def add_to_wishlist(request):
             for pid, item in wishlist.items()
         ]
     })
+
+def lamps(request):
+    # Get selected main category
+    selected_main = request.GET.get('main_cat', '')
+    
+    # Get all lamps
+    lamp_list = Lamp.objects.all()
+    
+    # Initialize section hierarchy with only main sections
+    section_hierarchy = []
+    main_sections = MainSection.objects.all()
+    
+    for main in main_sections:
+        main_count = Lamp.objects.filter(section__subsection__main_section=main).count()
+        section_hierarchy.append({
+            'section': main,
+            'count': main_count,
+            'is_selected': str(main.id) == selected_main
+        })
+    
+    # Apply main category filter if selected
+    if selected_main:
+        lamp_list = lamp_list.filter(section__subsection__main_section__id=selected_main)
+        try:
+            main_section = MainSection.objects.get(id=selected_main)
+            breadcrumb = [('main', main_section)]
+        except MainSection.DoesNotExist:
+            breadcrumb = []
+    else:
+        breadcrumb = []
+
+    # Get sorting parameter
+    sort = request.GET.get('sort', '0')
+    if sort == '1':
+        lamp_list = lamp_list.order_by('price')
+    elif sort == '2':
+        lamp_list = lamp_list.order_by('-price')
+    
+    # Get items per page from request, default to 9
+    per_page = request.GET.get('show', '9')
+    per_page = int(per_page) if per_page in ['9', '18'] else 9
+    
+    # Create paginator object
+    paginator = Paginator(lamp_list, per_page)
+    
+    # Get page number from request
+    page = request.GET.get('page', 1)
+    
+    try:
+        lamps = paginator.page(page)
+    except PageNotAnInteger:
+        lamps = paginator.page(1)
+    except EmptyPage:
+        lamps = paginator.page(paginator.num_pages)
+    
+    # Calculate the range of pages to show
+    page_range = get_page_range(paginator, lamps.number)
+    
+    # Get cart data from session
+    cart = request.session.get('cart', {})
+    cart_count = sum(item['quantity'] for item in cart.values())
+    cart_items = [
+        {
+            'id': pid,
+            'name': item['name'],
+            'quantity': item['quantity'],
+            'price': item['price'],
+            'image': item['image']
+        }
+        for pid, item in cart.items()
+    ]
+    cart_total = sum(item['price'] * item['quantity'] for item in cart.values())
+    
+    # Get wishlist data from session
+    wishlist = request.session.get('wishlist', {})
+    wishlist_count = len(wishlist)
+    wishlist_items = [
+        {
+            'id': pid,
+            'name': item['name'],
+            'price': item['price'],
+            'image': item['image']
+        }
+        for pid, item in wishlist.items()
+    ]
+    
+    context = {
+        'lamps': lamps,
+        'page_range': page_range,
+        'current_show': per_page,
+        'current_sort': sort,  # Add current sort to context
+        'cart_items': cart_items,
+        'cart_count': cart_count,
+        'cart_total': cart_total,
+        'wishlist_items': wishlist_items,
+        'wishlist_count': wishlist_count,
+    }
+    
+    context.update({
+        'section_hierarchy': section_hierarchy,
+        'selected_main': selected_main,
+        'breadcrumb': breadcrumb,
+    })
+    
+    return render(request, 'svet_site/lamps.html', context)
+
+def get_page_range(paginator, current_page, show_range=2):
+    """
+    Returns a list of page numbers to show, with ellipsis where needed.
+    Example: [1, 2, 3, '...', 98, 99, 100] for current_page=2
+    """
+    total_pages = paginator.num_pages
+    
+    # Always show first and last page
+    page_range = []
+    
+    # Calculate range around current page
+    start_range = max(current_page - show_range, 1)
+    end_range = min(current_page + show_range, total_pages)
+    
+    # Add first pages
+    if start_range > 1:
+        page_range.extend([1])
+        if start_range > 2:
+            page_range.append('...')
+    
+    # Add middle range
+    page_range.extend(range(start_range, end_range + 1))
+    
+    # Add last pages
+    if end_range < total_pages:
+        if end_range < total_pages - 1:
+            page_range.append('...')
+        page_range.append(total_pages)
+    
+    return page_range

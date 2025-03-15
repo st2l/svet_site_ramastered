@@ -1,0 +1,818 @@
+{% load static %}
+{% load custom_filters %}
+<!DOCTYPE html>
+<html lang="ru">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Все товары</title>
+
+		<!-- Google font -->
+		<link href="https://fonts.googleapis.com/css?family=Montserrat:400,500,700" rel="stylesheet">
+
+		<!-- Bootstrap -->
+		<link type="text/css" rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}"/>
+
+		<!-- Slick -->
+		<link type="text/css" rel="stylesheet" href="{% static 'css/slick.css' %}"/>
+		<link type="text/css" rel="stylesheet" href="{% static 'css/slick-theme.css' %}"/>
+
+		<!-- nouislider -->
+		<link type="text/css" rel="stylesheet" href="{% static 'css/nouislider.min.css' %}"/>
+
+		<!-- Font Awesome Icon -->
+		<link rel="stylesheet" href="{% static 'css/font-awesome.min.css' %}">
+
+		<!-- Custom stlylesheet -->
+		<link type="text/css" rel="stylesheet" href="{% static 'css/style.css' %}"/>
+    </head>
+	<body>
+
+        
+	<style>
+
+		.header-ctn>div {
+			display: inline-block;
+		  }
+		  
+		  .header-ctn>div>a {
+			display: block;
+			position: relative;
+			width: 90px;
+			text-align: center;
+			color: #FFF;
+		  }
+		  
+		  /* Общие стили для выпадающих меню */
+		  .cart-dropdown,
+		  .wishlist-dropdown {
+			position: absolute;
+			width: 300px;
+			background: #FFF;
+			padding: 15px;
+			-webkit-box-shadow: 0px 0px 0px 2px #E4E7ED;
+			box-shadow: 0px 0px 0px 2px #E4E7ED;
+			z-index: 99;
+			right: 0;
+			opacity: 0;
+			visibility: hidden;
+		  }
+		  
+		  /* Показ выпадающих меню при ховере */  
+		  .header-ctn>div:hover>.cart-dropdown,
+		  .header-ctn>div:hover>.wishlist-dropdown {
+			opacity: 1;
+			visibility: visible;
+		  }
+		  
+		  /* Общие стили для списков товаров */
+		  .cart-list,
+		  .wishlist-list {
+			max-height: 180px;
+			overflow-y: scroll;
+			margin-bottom: 15px;
+		  }
+		  
+		  /* Общие стили для виджетов товаров */
+		  .cart-list .product-widget,
+		  .wishlist-list .product-widget {
+			padding: 0px;
+			-webkit-box-shadow: none;
+			box-shadow: none;
+			margin-bottom: 15px;
+		  }
+		  
+		  /* Общие стили для итоговых блоков */
+		  .cart-summary,
+		  .wishlist-summary {
+			border-top: 1px solid #E4E7ED;
+			padding-top: 15px;
+			padding-bottom: 15px;
+		  }
+		  
+		  /* Общие стили для кнопок */
+		  .cart-btns,
+		  .wishlist-btns {
+			margin: 0px -17px -17px;
+		  }
+		  
+		  .cart-btns>a,
+		  .wishlist-btns>a {
+			display: inline-block;
+			width: calc(50% - 0px);
+			padding: 12px;
+			background-color: #D10024;
+			color: #FFF;
+			text-align: center;
+			font-weight: 700;
+			-webkit-transition: 0.2s all;
+			transition: 0.2s all;
+		  }
+		  
+		  .cart-btns>a:first-child,
+		  .wishlist-btns>a:first-child {
+			margin-right: -4px;
+			background-color: #1e1f29;
+		  }
+		  
+		  .cart-btns>a:hover,
+		  .wishlist-btns>a:hover {
+			opacity: 0.9;
+		  }
+		  
+		  /* Стили для счетчика количества */
+		  .header-ctn>div>a>.qty {
+			position: absolute;
+			right: 15px;
+			top: -10px;
+			width: 20px;
+			height: 20px;
+			line-height: 20px;
+			text-align: center;
+			border-radius: 50%;
+			font-size: 10px;
+			color: #FFF;
+			background-color: #D10024;
+		  }
+
+		  .category-group .collapse-icon {
+			cursor: pointer;
+			margin-right: 5px;
+		}
+
+		.category-group .subcategories,
+		.category-group .final-categories {
+			display: none;
+		}
+
+		.category-group.expanded > .subcategories,
+		.subcategories .category-group.expanded > .final-categories {
+			display: block;
+		}
+	</style>
+
+		<!-- HEADER -->
+		<header>
+			<!-- TOP HEADER -->
+			<div id="top-header">
+				<div class="container">
+					<ul class="header-links pull-left">
+						<li><a href="#"><i class="fa fa-phone"></i> +021-95-51-84</a></li>
+						<li><a href="#"><i class="fa fa-envelope-o"></i> email@email.com</a></li>
+						<li><a href="#"><i class="fa fa-map-marker"></i> 1734 Stonecoal Road</a></li>
+					</ul>
+					<ul class="header-links pull-right">
+						<li><a href="#"><i class="fa fa-ruble"></i> RUB</a></li>
+					</ul>
+				</div>
+			</div>
+			<!-- /TOP HEADER -->
+
+			<!-- MAIN HEADER -->
+			<div id="header">
+				<div class="container">
+					<div class="row">
+						<div class="col-md-3">
+							<div class="header-logo">
+								<a href="/" class="logo">
+									<img src="{% static 'img/logo.png' %}" alt="">
+								</a>
+							</div>
+						</div>
+
+						<div class="col-md-6">
+							<div class="header-search">
+								<form>
+									<select class="input-select">
+										<option value="0">Все категории</option>
+										<option value="1">Категория 1</option>
+										<option value="2">Категория 2</option>
+									</select>
+									<input class="input" placeholder="Поиск">
+									<button class="search-btn">Поиск</button>
+								</form>
+							</div>
+						</div>
+
+						<div class="col-md-3 clearfix">
+							<div class="header-ctn">
+								<!-- Wishlist -->
+								<div class="dropdown">
+									<a class="dropdown-toggle" data-toggle="dropdown">
+										<i class="fa fa-heart-o"></i>
+										<span>Избранное</span>
+										<div class="qty">{{ wishlist_count|default:0 }}</div>
+									</a>
+									<div class="wishlist-dropdown">
+										<div class="wishlist-list">
+											{% for item in wishlist_items %}
+											<div class="product-widget">
+												<div class="product-img">
+													<img src="{{ item.image }}" alt="{{ item.name }}">
+												</div>
+												<div class="product-body">
+													<h3 class="product-name"><a href="#">{{ item.name }}</a></h3>
+													<h4 class="product-price">{{ item.price }}₽</h4>
+												</div>
+												<button class="delete"><i class="fa fa-close"></i></button>
+											</div>
+											{% endfor %}
+										</div>
+										<div class="wishlist-summary">
+											<small>{{ wishlist_count|default:0 }} товар(ов) в избранном</small>
+										</div>
+										<div class="wishlist-btns">
+											<a href="#">Просмотр избранного</a>
+											<a href="#">В корзину <i class="fa fa-arrow-circle-right"></i></a>
+										</div>
+									</div>
+								</div>
+								<!-- /Wishlist -->
+
+								<!-- Cart -->
+								<div class="dropdown">
+									<a class="dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
+										<i class="fa fa-shopping-cart"></i>
+										<span>Корзина</span>
+										<div class="qty">{{ cart_count|default:0 }}</div>
+									</a>
+									<div class="cart-dropdown">
+										<div class="cart-list">
+											{% for item in cart_items %}
+											<div class="product-widget">
+												<div class="product-img">
+													<img src="{{ item.image }}" alt="{{ item.name }}">
+												</div>
+												<div class="product-body">
+													<h3 class="product-name"><a href="#">{{ item.name }}</a></h3>
+													<h4 class="product-price"><span class="qty">{{ item.quantity }}x</span>{{ item.price }}₽</h4>
+												</div>
+												<button class="delete"><i class="fa fa-close"></i></button>
+											</div>
+											{% endfor %}
+										</div>
+										<div class="cart-summary">
+											<small>{{ cart_count|default:0 }} товар(ов) выбрано</small>
+											<h5>ИТОГО: {{ cart_total|default:0 }}₽</h5>
+										</div>
+										<div class="cart-btns">
+											<a href="#">Просмотр корзины</a>
+											<a href="#">Оформить заказ <i class="fa fa-arrow-circle-right"></i></a>
+										</div>
+									</div>
+								</div>
+								<!-- /Cart -->
+
+								<!-- Menu Toogle -->
+								<div class="menu-toggle">
+									<a href="#">
+										<i class="fa fa-bars"></i>
+										<span>Menu</span>
+									</a>
+								</div>
+								<!-- /Menu Toogle -->
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- /MAIN HEADER -->
+		</header>
+		<!-- /HEADER -->
+
+		<!-- NAVIGATION -->
+		<nav id="navigation">
+			<div class="container">
+				<div id="responsive-nav">
+					<ul class="main-nav nav navbar-nav">
+						<li><a href="/">Главная</a></li>
+						<li><a href="/categories">Все категории</a></li>
+						<li class="active"><a href="/lamps">Все товары</a></li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+		<!-- /NAVIGATION -->
+
+		{% if breadcrumb %}
+		<!-- BREADCRUMB -->
+		<div id="breadcrumb" class="section">
+			<!-- container -->
+			<div class="container">
+				<!-- row -->
+				<div class="row">
+					<div class="col-md-12">
+						<ul class="breadcrumb-tree">
+							<li><a href="/">Главная</a></li>
+							<li><a href="{% url 'svet_site:lamps' %}">Все товары</a></li>
+							{% for type, item in breadcrumb %}
+								{% if forloop.last %}
+									<li class="active">{{ item.name }}</li>
+								{% else %}
+									{% if type == 'main' %}
+										<li><a href="?main_cat={{ item.id }}">{{ item.name }}</a></li>
+									{% elif type == 'sub' %}
+										<li><a href="?main_cat={% for main_id in selected_main %}{{ main_id }}{% if not forloop.last %},{% endif %}{% endfor %}&sub_cat={{ item.id }}">{{ item.name }}</a></li>
+									{% elif type == 'final' %}
+										<li><a href="?main_cat={% for main_id in selected_main %}{{ main_id }}{% if not forloop.last %},{% endif %}{% endfor %}&sub_cat={% for sub_id in selected_sub %}{{ sub_id }}{% if not forloop.last %},{% endif %}{% endfor %}&final_cat={{ item.id }}">{{ item.name }}</a></li>
+									{% endif %}
+								{% endif %}
+							{% endfor %}
+						</ul>
+					</div>
+				</div>
+				<!-- /row -->
+			</div>
+			<!-- /container -->
+		</div>
+		<!-- /BREADCRUMB -->
+		{% endif %}
+
+			<!-- SECTION -->
+		<div class="section">
+			<!-- container -->
+			<div class="container">
+				<!-- row -->
+				<div class="row">
+					<!-- ASIDE -->
+					<div id="aside" class="col-md-3">
+						<!-- aside Widget -->
+						<div class="aside">
+							<h3 class="aside-title">Категории</h3>
+							<div class="checkbox-filter">
+								{% for section in section_hierarchy %}
+									<div class="input-checkbox">
+										<a href="?main_cat={{ section.section.id }}{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if current_show %}&show={{ current_show }}{% endif %}">
+											<label {% if section.is_selected %}class="active"{% endif %}>
+												<span></span>
+												{{ section.section.name }}
+												<small>({{ section.count }})</small>
+											</label>
+										</a>
+									</div>
+								{% endfor %}
+							</div>
+						</div>
+						<!-- /aside Widget -->
+
+						<!-- aside Widget -->
+						<div class="aside">
+							<h3 class="aside-title">Цена</h3>
+							<div class="price-filter">
+								<div id="price-slider"></div>
+								<div class="input-number price-min">
+									<input id="price-min" type="number">
+									<span class="qty-up">+</span>
+									<span class="qty-down">-</span>
+								</div>
+								<span>-</span>
+								<div class="input-number price-max">
+									<input id="price-max" type="number">
+									<span class="qty-up">+</span>
+									<span class="qty-down">-</span>
+								</div>
+							</div>
+						</div>
+						<!-- /aside Widget -->
+
+						<!-- aside Widget -->
+						<div class="aside">
+							<h3 class="aside-title">Бренд</h3>
+							<div class="checkbox-filter">
+								<div class="input-checkbox">
+									<input type="checkbox" id="brand-1">
+									<label for="brand-1">
+										<span></span>
+										LIGHTSTAR
+										<small>(578)</small>
+									</label>
+								</div>
+								<div class="input-checkbox">
+									<input type="checkbox" id="brand-2">
+									<label for="brand-2">
+										<span></span>
+										MAYTONI
+										<small>(125)</small>
+									</label>
+								</div>
+								<div class="input-checkbox">
+									<input type="checkbox" id="brand-3">
+									<label for="brand-3">
+										<span></span>
+										DIVINARE
+										<small>(755)</small>
+									</label>
+								</div>
+							</div>
+						</div>
+						<!-- /aside Widget -->
+
+						<!-- aside Widget -->
+						<div class="aside">
+							<h3 class="aside-title">Популярные товары</h3>
+							<div class="product-widget">
+								<div class="product-img">
+									<img src="{% static 'img/product01.png' %}" alt="">
+								</div>
+								<div class="product-body">
+									<p class="product-category">Светильники</p>
+									<h3 class="product-name"><a href="#">Название продукта</a></h3>
+									<h4 class="product-price">980₽ <del class="product-old-price">990₽</del></h4>
+								</div>
+							</div>
+
+							<div class="product-widget">
+								<div class="product-img">
+									<img src="{% static 'img/product02.png' %}" alt="">
+								</div>
+								<div class="product-body">
+									<p class="product-category">Светильники</p>
+									<h3 class="product-name"><a href="#">Название продукта</a></h3>
+									<h4 class="product-price">980₽ <del class="product-old-price">990₽</del></h4>
+								</div>
+							</div>
+
+							<div class="product-widget">
+								<div class="product-img">
+									<img src="{% static 'img/product03.png' %}" alt="">
+								</div>
+								<div class="product-body">
+									<p class="product-category">Светильники</p>
+									<h3 class="product-name"><a href="#">Название продукта</a></h3>
+									<h4 class="product-price">980₽ <del class="product-old-price">990₽</del></h4>
+								</div>
+							</div>
+						</div>
+						<!-- /aside Widget -->
+					</div>
+					<!-- /ASIDE -->
+
+					<!-- STORE -->
+					<div id="store" class="col-md-9">
+						<!-- store top filter -->
+						<div class="store-filter clearfix">
+							<div class="store-sort">
+								<label>
+									Сортировать:
+									<select class="input-select" id="sort-select">
+										<option value="0" {% if current_sort == '0' %}selected{% endif %}>Без сортировки</option>
+										<option value="1" {% if current_sort == '1' %}selected{% endif %}>По цене (возр.)</option>
+										<option value="2" {% if current_sort == '2' %}selected{% endif %}>По цене (убыв.)</option>
+									</select>
+								</label>
+
+								<label>
+									Показать:
+									<select class="input-select" id="show-select">
+										<option value="9" {% if current_show == 9 %}selected{% endif %}>9</option>
+										<option value="18" {% if current_show == 18 %}selected{% endif %}>18</option>
+									</select>
+								</label>
+							</div>
+							<ul class="store-grid">
+								<li class="active"><i class="fa fa-th"></i></li>
+								<li><a href="#"><i class="fa fa-th-list"></i></a></li>
+							</ul>
+						</div>
+						<!-- /store top filter -->
+
+						<!-- store products -->
+						<div class="row">
+							{% for lamp in lamps %}
+							<!-- product -->
+							<div class="col-md-4 col-xs-6">
+								<div class="product">
+									<div class="product-img">
+										{% with image=lamp.main_image|default:lamp.detail_image|default:lamp.scheme_image|default:lamp.lamp_image|default:lamp.additional_image_1 %}
+											{% if image %}
+												<img src="{{ image.url }}" alt="{{ lamp.model }}">
+											{% endif %}
+										{% endwith %}
+										{% if lamp.price and lamp.last_price %}
+										<div class="product-label">
+											<span class="sale">-{{ lamp.price|discount_percent:lamp.last_price }}%</span>
+										</div>
+										{% endif %}
+									</div>
+									<div class="product-body">
+										<p class="product-category">{{ lamp.section.name }}</p>
+										<h3 class="product-name"><a href="#">{{ lamp.model }}</a></h3>
+										<h4 class="product-price">
+											{% if lamp.price %}
+												{{ lamp.price }}₽
+												{% if lamp.last_price %}
+													<del class="product-old-price">{{ lamp.last_price }}₽</del>
+												{% endif %}
+											{% endif %}
+										</h4>
+										<div class="product-btns">
+											<button class="add-to-wishlist"><i class="fa fa-heart-o"></i><span class="tooltipp">В желаемое</span></button>
+											<button class="add-to-compare"><i class="fa fa-exchange"></i><span class="tooltipp">В сравнение</span></button>
+											<button class="quick-view"><i class="fa fa-eye"></i><span class="tooltipp">Просмотреть</span></button>
+										</div>
+									</div>
+									<div class="add-to-cart">
+										<form class="add-to-cart-form" method="POST" data-product-id="{{ lamp.id }}">
+											{% csrf_token %}
+											<button type="submit" class="add-to-cart-btn"><i class="fa fa-shopping-cart"></i> В корзину</button>
+										</form>
+									</div>
+								</div>
+							</div>
+							<!-- /product -->
+							{% if forloop.counter|divisibleby:3 %}
+								<div class="clearfix visible-lg visible-md"></div>
+							{% endif %}
+							{% if forloop.counter|divisibleby:2 %}
+								<div class="clearfix visible-sm visible-xs"></div>
+							{% endif %}
+							{% endfor %}
+						</div>
+						<!-- /store products -->
+
+						<!-- store bottom filter -->
+						<div class="store-filter clearfix">
+							<span class="store-qty">Показано {{ lamps.start_index }}-{{ lamps.end_index }} из {{ paginator.count }} товаров</span>
+							<ul class="store-pagination">
+								{% if lamps.has_previous %}
+									<li><a href="?page={{ lamps.previous_page_number }}&show={{ current_show }}&sort={{ current_sort }}{% if selected_main %}&main_cat={{ selected_main }}{% endif %}"><i class="fa fa-angle-left"></i></a></li>
+								{% endif %}
+								
+								{% for p in page_range %}
+									{% if p == '...' %}
+										<li class="disabled"><span>{{ p }}</span></li>
+									{% else %}
+										<li {% if lamps.number == p %}class="active"{% endif %}>
+											{% if lamps.number == p %}
+												{{ p }}
+											{% else %}
+												<a href="?page={{ p }}&show={{ current_show }}&sort={{ current_sort }}{% if selected_main %}&main_cat={{ selected_main }}{% endif %}">{{ p }}</a>
+											{% endif %}
+										</li>
+									{% endif %}
+								{% endfor %}
+								
+								{% if lamps.has_next %}
+									<li><a href="?page={{ lamps.next_page_number }}&show={{ current_show }}&sort={{ current_sort }}{% if selected_main %}&main_cat={{ selected_main }}{% endif %}"><i class="fa fa-angle-right"></i></a></li>
+								{% endif %}
+							</ul>
+						</div>
+						<!-- /store bottom filter -->
+					</div>
+					<!-- /STORE -->
+				</div>
+				<!-- /row -->
+			</div>
+			<!-- /container -->
+		</div>
+		<!-- /SECTION -->
+
+		<!-- FOOTER -->
+		<footer id="footer">
+			<!-- Include your existing footer code here -->
+		</footer>
+		<!-- /FOOTER -->
+
+		<!-- jQuery Plugins -->
+		<script src="{% static 'js/jquery.min.js' %}"></script>
+		<script src="{% static 'js/bootstrap.min.js' %}"></script>
+		<script src="{% static 'js/slick.min.js' %}"></script>
+		<script src="{% static 'js/nouislider.min.js' %}"></script>
+		<script src="{% static 'js/jquery.zoom.min.js' %}"></script>
+		<script src="{% static 'js/main.js' %}"></script>
+
+		<script>
+			$(document).ready(function() {
+				// Handle add to cart form submission
+				$('.add-to-cart-form').on('submit', function(e) {
+					e.preventDefault();
+					const form = $(this);
+					const productId = form.data('product-id');
+					
+					$.ajax({
+						url: "{% url 'svet_site:add_to_cart' %}",
+						method: 'POST',
+						data: {
+							'product_id': productId,
+							'csrfmiddlewaretoken': form.find('input[name=csrfmiddlewaretoken]').val()
+						},
+						success: function(response) {
+							$('.header-ctn .dropdown .qty').text(response.cart_count);
+							updateCartDropdown(response.cart_items);
+							alert('Товар добавлен в корзину!');
+						},
+						error: function() {
+							alert('Произошла ошибка при добавлении товара');
+						}
+					});
+				});
+
+				// Handle add to wishlist button clicks
+				$('.add-to-wishlist').on('click', function(e) {
+					e.preventDefault();
+					const productId = $(this).closest('.product').find('.add-to-cart-form').data('product-id');
+					
+					$.ajax({
+						url: "{% url 'svet_site:add_to_wishlist' %}",
+						method: 'POST',
+						data: {
+							'product_id': productId,
+							'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val()
+						},
+						success: function(response) {
+							$('.header-ctn .wishlist-qty').text(response.wishlist_count);
+							updateWishlistDropdown(response.wishlist_items);
+							alert('Товар добавлен в избранное!');
+						},
+						error: function() {
+							alert('Произошла ошибка при добавлении в избранное');
+						}
+					});
+				});
+
+				function updateCartDropdown(cartItems) {
+					const cartList = $('.cart-dropdown .cart-list');
+					cartList.empty();
+					
+					let total = 0;
+					cartItems.forEach(item => {
+						cartList.append(`
+							<div class="product-widget">
+								<div class="product-img">
+									<img src="${item.image}" alt="${item.name}">
+								</div>
+								<div class="product-body">
+									<h3 class="product-name"><a href="#">${item.name}</a></h3>
+									<h4 class="product-price"><span class="qty">${item.quantity}x</span>${item.price}₽</h4>
+								</div>
+								<button class="delete"><i class="fa fa-close"></i></button>
+							</div>
+						`);
+						total += item.price * item.quantity;
+					});
+
+					$('.cart-summary small').text(`${cartItems.length} товар(ов) выбрано`);
+					$('.cart-summary h5').text(`ИТОГО: ${total}₽`);
+				}
+
+				function updateWishlistDropdown(wishlistItems) {
+					const wishlistList = $('.wishlist-dropdown .wishlist-list');
+					wishlistList.empty();
+					
+					wishlistItems.forEach(item => {
+						wishlistList.append(`
+							<div class="product-widget">
+								<div class="product-img">
+									<img src="${item.image}" alt="${item.name}">
+								</div>
+								<div class="product-body">
+									<h3 class="product-name"><a href="#">${item.name}</a></h3>
+									<h4 class="product-price">${item.price}₽</h4>
+								</div>
+								<button class="delete"><i class="fa fa-close"></i></button>
+							</div>
+						`);
+					});
+				}
+
+				// Add handler for items per page selection
+				$('#show-select').change(function() {
+					const show = $(this).val();
+					window.location.href = updateQueryStringParameter(window.location.href, 'show', show);
+				});
+				
+				// Function to update URL parameters
+				function updateQueryStringParameter(uri, key, value) {
+					var re = new RegExp("([?&])" + key + "=.*?(&|$)", "i");
+					var separator = uri.indexOf('?') !== -1 ? "&" : "?";
+					
+					if (uri.match(re)) {
+						return uri.replace(re, '$1' + key + "=" + value + '$2');
+					} else {
+						return uri + separator + key + "=" + value;
+					}
+				}
+
+				// Add handler for sorting selection
+				$('#sort-select').change(function() {
+					const sort = $(this).val();
+					const currentUrl = new URL(window.location.href);
+					currentUrl.searchParams.set('sort', sort);
+					currentUrl.searchParams.set('page', 1); // Reset to first page when sorting changes
+					window.location.href = currentUrl.toString();
+				});
+				
+				// Modify existing show-select handler to maintain sort parameter
+				$('#show-select').change(function() {
+					const show = $(this).val();
+					const currentUrl = new URL(window.location.href);
+					currentUrl.searchParams.set('show', show);
+					currentUrl.searchParams.set('page', 1); // Reset to first page when items per page changes
+					window.location.href = currentUrl.toString();
+				});
+			});
+		</script>
+		<script>
+$(document).ready(function() {
+    // Function to update URL with selected categories
+    function updateCategoriesFilter() {
+        const currentUrl = new URL(window.location.href);
+        
+        // Clear existing category parameters
+        currentUrl.searchParams.delete('main_cat');
+        currentUrl.searchParams.delete('sub_cat');
+        currentUrl.searchParams.delete('final_cat');
+        
+        // Add selected main categories
+        $('.main-category:checked').each(function() {
+            currentUrl.searchParams.append('main_cat', $(this).val());
+        });
+        
+        // Add selected subcategories
+        $('.sub-category:checked').each(function() {
+            currentUrl.searchParams.append('sub_cat', $(this).val());
+        });
+        
+        // Add selected final categories
+        $('.final-category:checked').each(function() {
+            currentUrl.searchParams.append('final_cat', $(this).val());
+        });
+        
+        // Reset to first page when changing categories
+        currentUrl.searchParams.set('page', 1);
+        
+        window.location.href = currentUrl.toString();
+    }
+    
+    // Add change event handler to all category checkboxes
+    $('.category-checkbox').change(function() {
+        updateCategoriesFilter();
+    });
+
+	// Handle category collapse/expand
+	$('.collapse-icon').click(function(e) {
+		e.preventDefault();
+		e.stopPropagation();
+		const $categoryGroup = $(this).closest('.category-group');
+		$categoryGroup.toggleClass('expanded');
+		$(this).toggleClass('fa-plus fa-minus');
+	});
+
+	// Initialize selected categories as expanded
+	$('.category-checkbox:checked').each(function() {
+		let $group = $(this).closest('.category-group');
+		$group.addClass('expanded');
+		$group.find('> div > .collapse-icon').removeClass('fa-plus').addClass('fa-minus');
+		// Also expand parent groups if any
+		$group.parents('.category-group').each(function() {
+			$(this).addClass('expanded');
+			$(this).find('> div > .collapse-icon').removeClass('fa-plus').addClass('fa-minus');
+		});
+	});
+
+	// Function to update URL with selected categories
+	let updateTimeout;
+	function updateCategoriesFilter() {
+		clearTimeout(updateTimeout);
+		updateTimeout = setTimeout(function() {
+			const currentUrl = new URL(window.location.href);
+			
+			// Get all checked checkboxes by category
+			const mainCats = $('.main-category:checked').map(function() {
+				return $(this).val();
+			}).get();
+			
+			const subCats = $('.sub-category:checked').map(function() {
+				return $(this).val();
+			}).get();
+			
+			const finalCats = $('.final-category:checked').map(function() {
+				return $(this).val();
+			}).get();
+			
+			// Update URL parameters
+			currentUrl.searchParams.delete('main_cat');
+			currentUrl.searchParams.delete('sub_cat');
+			currentUrl.searchParams.delete('final_cat');
+			
+			mainCats.forEach(cat => currentUrl.searchParams.append('main_cat', cat));
+			subCats.forEach(cat => currentUrl.searchParams.append('sub_cat', cat));
+			finalCats.forEach(cat => currentUrl.searchParams.append('final_cat', cat));
+			
+			// Reset to first page
+			currentUrl.searchParams.set('page', 1);
+			
+			// Navigate to new URL
+			window.location.href = currentUrl.toString();
+		}, 500); // Add small delay to allow for multiple selections
+	}
+	
+	// Add change event handler to all category checkboxes
+	$('.category-checkbox').change(function() {
+		updateCategoriesFilter();
+	});
+});
+</script>
+	</body>
+</html>
