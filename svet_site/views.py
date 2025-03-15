@@ -11,6 +11,8 @@ from random import sample
 from django.core.files.base import ContentFile
 import requests
 from urllib.parse import unquote
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
 
 def index(request):
     # Get first 2 main sections
@@ -44,6 +46,27 @@ def index(request):
         'section_products': section_products,
         'random_groups': random_groups,
     }
+    
+    # Get cart data from session
+    cart = request.session.get('cart', {})
+    cart_count = sum(item['quantity'] for item in cart.values())
+    cart_items = [
+        {
+            'id': pid,
+            'name': item['name'],
+            'quantity': item['quantity'],
+            'price': item['price'],
+            'image': item['image']
+        }
+        for pid, item in cart.items()
+    ]
+    cart_total = sum(item['price'] * item['quantity'] for item in cart.values())
+    
+    params.update({
+        'cart_items': cart_items,
+        'cart_count': cart_count,
+        'cart_total': cart_total
+    })
     
     return render(request, 'svet_site/index.html', context=params)
 
@@ -227,3 +250,51 @@ def upload_excel(request):
         form = ExcelUploadForm()
     
     return render(request, 'admin/upload_excel.html', {'form': form})
+
+@require_POST
+def add_to_cart(request):
+    product_id = request.POST.get('product_id')
+    if not product_id:
+        return JsonResponse({'error': 'Lamp ID is required'}, status=400)
+    
+    try:
+        product = Lamp.objects.get(id=product_id)
+    except Lamp.DoesNotExist:
+        return JsonResponse({'error': 'Lamp not found'}, status=404)
+    
+    # Initialize cart in session if it doesn't exist
+    if 'cart' not in request.session:
+        request.session['cart'] = {}
+    
+    cart = request.session['cart']
+    
+    # Add or increment product in cart
+    if product_id in cart:
+        cart[product_id]['quantity'] += 1
+    else:
+        cart[product_id] = {
+            'quantity': 1,
+            'name': product.model,
+            'price': float(product.price),
+            'image': product.main_image.url if product.main_image else '',
+        }
+    
+    request.session.modified = True
+    
+    # Prepare response data
+    cart_items = [
+        {
+            'id': pid,
+            'name': item['name'],
+            'quantity': item['quantity'],
+            'price': item['price'],
+            'image': item['image']
+        }
+        for pid, item in cart.items()
+    ]
+    
+    return JsonResponse({
+        'status': 'success',
+        'cart_count': sum(item['quantity'] for item in cart.values()),
+        'cart_items': cart_items
+    })

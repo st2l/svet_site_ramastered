@@ -1,12 +1,9 @@
-from django.contrib import admin
-from django.urls import path, include
-from django.conf import settings
-from django.conf.urls.static import static
+from django.urls import path
+from . import views
+
+app_name = 'svet_site'  # Add this line to register the namespace
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('', include('svet_site.urls')),
+    path('', views.index, name='index'),
+    path('add-to-cart/', views.add_to_cart, name='add_to_cart'),
 ]
-
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
